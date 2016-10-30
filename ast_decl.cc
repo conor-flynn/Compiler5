@@ -75,18 +75,6 @@ void FnDecl::SetFunctionBody(Stmt *b) {
 
 
 
-void Decl::ShallowCheck(Scope* scope) {
-#if 0
-	if (scopeHasLocalDeclaration(this, scope)) {
-		ReportError::DeclConflict(
-						this, 
-						scope->declarations.Lookup(this->id->getName()));
-		return;
-	}
-	scope->declarations.Enter(this->id->getName(), this);
-#endif
-}
-
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -237,10 +225,6 @@ bool scopeHasLocalDeclaration(Decl* decl, Scope* scope) {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
-void Decl::Check(Scope* scope) {
-
-}
-
 void searchType(Type* type, Scope* scope) {
 #if 0
 	NamedType* name = dynamic_cast<NamedType*>(type);
@@ -258,7 +242,7 @@ void searchType(Type* type, Scope* scope) {
 #endif
 }
 
-void VarDecl::Check(Scope* scope) {
+bool VarDecl::Check(Scope* scope) {
 #if 0
 	if (this->checked) return;
 	this->checked = true;
@@ -271,9 +255,18 @@ void VarDecl::Check(Scope* scope) {
 	scope->declarations.Enter(this->id->getName(), this);
 	searchType(getReturnType(), scope);
 #endif
+	Symbol* result = NULL;
+
+	if ((result=scope->findLocalSymbol(id->getName())) != NULL) {
+		ReportError::DeclConflict(this, dynamic_cast<Decl*>(result->getAttachment()));
+		return false;
+	} else {
+		bool test = scope->addVariableSymbol(id->getName(), this);
+		return test;
+	}
 }
 
-void FnDecl::Check(Scope* scope) {
+bool FnDecl::Check(Scope* scope) {
 #if 0
 	if (this->checked) return;
 	this->checked = true;
@@ -298,6 +291,7 @@ void FnDecl::Check(Scope* scope) {
 	bodyScope->functionScope = this;
 	this->body->Check(bodyScope);
 #endif
+	return false;
 }
 
 Type* ClassDecl::findField(Identifier* field) {
@@ -395,7 +389,7 @@ void ClassDecl::passToSubclass(
 #endif
 }
 
-void ClassDecl::Check(Scope* scope) {
+bool ClassDecl::Check(Scope* scope) {
 #if 0
 	if (this->checked) return;
 	this->checked = true;
@@ -413,6 +407,7 @@ void ClassDecl::Check(Scope* scope) {
 		checkDeclarationAgainstInterface(d);
 	}
 #endif
+	return false;
 }
 
 
@@ -539,7 +534,7 @@ void ClassDecl::checkDeclarationAgainstParent(Decl* local) {
 	}
 #endif	
 }
-void InterfaceDecl::Check(Scope* scope) {
+bool InterfaceDecl::Check(Scope* scope) {
 #if 0
 	Scope* bodyScope = new Scope(scope);
 	for (int i = 0; i < members->NumElements(); i++) {
@@ -548,6 +543,7 @@ void InterfaceDecl::Check(Scope* scope) {
 	}
 	scope->declarations.Enter(this->getId()->getName(), this);
 #endif
+	return false;
 }
 int decodeDeclaration(Decl* d) {
 #if 0

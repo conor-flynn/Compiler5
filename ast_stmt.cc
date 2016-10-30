@@ -55,6 +55,7 @@ Program::Program(List<Decl*> *d) {
     (decls=d)->SetParentAll(this);
 }
 
+Scope* globalScope = NULL;
 void Program::Check() {
     /* pp3: here is where the semantic analyzer is kicked off.
      *      The general idea is perform a tree traversal of the
@@ -78,6 +79,14 @@ void Program::Check() {
      	fanOutDeclaration(dec, normalScope);   
      }
 #endif
+     scope = new Scope();
+     for (int i = 0; i < decls->NumElements(); i++) {
+     	decls->Nth(i)->tsaPreCheck(scope);
+     }
+     globalScope = scope;
+     for (int i = 0; i < decls->NumElements(); i++) {
+     	decls->Nth(i)->Check(scope);
+     }
 }
 
 void Program::Emit() {

@@ -10,14 +10,19 @@
 class Node;
 class Scope;
 
+enum {VARIABLE, FUNCTION, CLASS};
+
 class Symbol {
-	public:	// who needs the safety of protected anyways ayy lmao
-		int symbol_type;
+	public:	//  ayy lmao
+		int symbolType;
+		Node* attachment;
 		Scope* owner;
 		Location* location;
 		Symbol(int type, Node* origin);
-		Symbol(int type, Node* origin, Location* place);
-		Symbol(int type, Node* origin, Scope* info);
+		//Symbol(int type, Node* origin, Location* place);
+		//Symbol(int type, Node* origin, Scope* info);
+
+		Node* getAttachment() { return attachment; }
 };
 
 class Scope {
@@ -39,5 +44,8 @@ class Scope {
 		//FnDecl* functionScope;	// If functionScope != NULL< then this scope is within a function (for return statements);
 
 		Scope();
+
+		Symbol* findLocalSymbol(char* name);
+		bool addVariableSymbol(char* name, Node* node);
 };
 #endif

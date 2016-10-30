@@ -32,8 +32,9 @@ class Decl : public Node
     virtual ~Decl(){}
     friend std::ostream& operator<<(std::ostream& out, Decl *d) { return out << d->id; }
 
-    void Check(Scope* scope);
-    void ShallowCheck(Scope* scope);
+	virtual bool tsaPreCheck(Scope* scope) { return true; }
+    virtual bool Check(Scope* scope) { return true; }
+
     Identifier* getId() { return id; }
 };
 
@@ -45,7 +46,7 @@ class VarDecl : public Decl
   public:
     VarDecl(Identifier *name, Type *type);
 
-    void Check(Scope* scope);
+    bool Check(Scope* scope);
     bool searchScope(char* name, Scope* scope);
     Type* getReturnType(){ return type; }
 };
@@ -64,7 +65,7 @@ class ClassDecl : public Decl
     ClassDecl(Identifier *name, NamedType *extends, 
               List<NamedType*> *implements, List<Decl*> *members);
 
-    void Check(Scope* scope);
+    bool Check(Scope* scope);
     void CheckParent(Scope* scope);
     void CheckInterfaces(Scope* scope);
     
@@ -87,7 +88,7 @@ class InterfaceDecl : public Decl
     InterfaceDecl(Identifier *name, List<Decl*> *members);
 
     void addInterface(Hashtable<Decl*>* source);
-    void Check(Scope* scope);
+    bool Check(Scope* scope);
 };
 
 class FnDecl : public Decl 
@@ -101,7 +102,7 @@ class FnDecl : public Decl
     FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
     void SetFunctionBody(Stmt *b);
 
-    void Check(Scope* scope);
+    bool Check(Scope* scope);
     Type* getReturnType(){ return returnType; }
     List<VarDecl*>* getFormals(){ return formals; }
 };
