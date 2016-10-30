@@ -12,6 +12,10 @@ Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     (id=n)->SetParent(this); 
 }
 
+void Decl::Emit() {
+	//std::cout << "Weow" << std::endl;
+}
+
 
 VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     Assert(n != NULL && t != NULL);
