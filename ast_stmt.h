@@ -19,6 +19,9 @@
 class Decl;
 class VarDecl;
 class Expr;
+class Stmt;
+
+Type* fanOutStatement(Stmt* stmt, Scope* scope);
   
 class Program : public Node
 {
@@ -36,6 +39,9 @@ class Stmt : public Node
   public:
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
+     virtual ~Stmt(){}
+
+     Type* Check(Scope* scope);
 };
 
 class StmtBlock : public Stmt 
@@ -46,6 +52,7 @@ class StmtBlock : public Stmt
     
   public:
     StmtBlock(List<VarDecl*> *variableDeclarations, List<Stmt*> *statements);
+    Type* Check(Scope* scope);
 };
 
   
@@ -57,6 +64,8 @@ class ConditionalStmt : public Stmt
   
   public:
     ConditionalStmt(Expr *testExpr, Stmt *body);
+    Type* Check(Scope* scope);
+    Expr* getTest(){ return test; }
 };
 
 class LoopStmt : public ConditionalStmt 
@@ -64,6 +73,7 @@ class LoopStmt : public ConditionalStmt
   public:
     LoopStmt(Expr *testExpr, Stmt *body)
             : ConditionalStmt(testExpr, body) {}
+    Type* Check(Scope* scope);
 };
 
 class ForStmt : public LoopStmt 
@@ -73,12 +83,14 @@ class ForStmt : public LoopStmt
   
   public:
     ForStmt(Expr *init, Expr *test, Expr *step, Stmt *body);
+    Type* Check(Scope* scope);
 };
 
 class WhileStmt : public LoopStmt 
 {
   public:
     WhileStmt(Expr *test, Stmt *body) : LoopStmt(test, body) {}
+    Type* Check(Scope* scope);
 };
 
 class IfStmt : public ConditionalStmt 
@@ -88,12 +100,14 @@ class IfStmt : public ConditionalStmt
   
   public:
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
+    Type* Check(Scope* scope);
 };
 
 class BreakStmt : public Stmt 
 {
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
+    Type* Check(Scope* scope);
 };
 
 class ReturnStmt : public Stmt  
@@ -103,6 +117,7 @@ class ReturnStmt : public Stmt
   
   public:
     ReturnStmt(yyltype loc, Expr *expr);
+    Type* Check(Scope* scope);
 };
 
 class PrintStmt : public Stmt
@@ -112,7 +127,34 @@ class PrintStmt : public Stmt
     
   public:
     PrintStmt(List<Expr*> *arguments);
+    Type* Check(Scope* scope);
 };
 
+
+class IntConstant;
+
+class Case : public Node
+{
+  protected:
+    IntConstant *value;
+    List<Stmt*> *stmts;
+    
+  public:
+    Case(IntConstant *v, List<Stmt*> *stmts);
+    const char *GetPrintNameForNode() { return value ? "Case" :"Default"; }
+    Type* Check(Scope* scope);
+};
+
+class SwitchStmt : public Stmt
+{
+  protected:
+    Expr *expr;
+    List<Case*> *cases;
+    
+  public:
+    SwitchStmt(Expr *e, List<Case*> *cases);
+    const char *GetPrintNameForNode() { return "SwitchStmt"; }
+    Type* Check(Scope* scope);
+};
 
 #endif

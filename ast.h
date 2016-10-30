@@ -30,8 +30,12 @@
 #define _H_ast
 
 #include <stdlib.h>   // for NULL
-#include "location.h"
 #include <iostream>
+
+#include "location.h"
+#include "Scope.h"
+#include "errors.h"
+#include "list.h"
 
 class Node 
 {

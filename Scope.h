@@ -3,9 +3,9 @@
 
 
 #include "hashtable.h"
-#include "ast.h"
 #include "location.h"
 #include "mips.h"
+#include "ast.h"
 
 class Node;
 class Scope;
